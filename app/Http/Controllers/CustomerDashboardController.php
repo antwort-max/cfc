@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\EcoCart; // o el modelo de ventas que uses
+use App\Models\EcoCart; 
+use App\Models\WebActivity;
 
 class CustomerDashboardController extends Controller
 {

@@ -7,6 +7,7 @@ use App\Models\EcoCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\WebActivity;
 
 class CustomerAuthController extends Controller
 {

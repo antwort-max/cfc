@@ -63,7 +63,6 @@ class CusCustomer extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    /** Conversión automática de atributos */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_login_at'     => 'datetime',
@@ -71,14 +70,8 @@ class CusCustomer extends Authenticatable implements MustVerifyEmail
         'is_tax_exempt'     => 'boolean',
     ];
 
-    /*-------------------- Relaciones --------------------*/
-
-    /**
-     * (Opcional) usuario interno que creó o gestiona este cliente.
-     * El campo `user_id` puede ser null.
-     */
-    public function user()
+    public function getFullNameAttribute()
     {
-        return $this->belongsTo(User::class);
+        return "{$this->first_name} {$this->last_name}";
     }
 }

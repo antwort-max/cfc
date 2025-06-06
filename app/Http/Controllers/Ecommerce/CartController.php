@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\WebThemeOption;
 use App\Models\WebMenu;
 use App\Models\EcoCart;
+use App\Helpers\ActivityLogger;   
 
 class CartController extends Controller
 {
@@ -35,6 +36,10 @@ class CartController extends Controller
 
         $currentCart = $cart->current();
 
+        ActivityLogger::log($request, 'view_cart', [
+            'item_count' => $cart->current()->items()->count(),
+        ]);
+
         return view('ecommerce.cartPage.index', ['cart' => $currentCart->load('items.product'),]);
     }
 
@@ -50,12 +55,22 @@ class CartController extends Controller
             quantity : $request->integer('quantity')
         );
 
+        ActivityLogger::log($request, 'add_to_cart', [
+            'product_id' => $request->integer('product_id'),
+            'quantity' => $request->integer('quantity'),
+        ]);
+
         return back()->with('success', 'Producto añadido al carrito');
     }
 
-    public function show(CartService $cart)
+    public function show(CartService $cart, Request $request)
     {
         $currentCart = $cart->current();
+
+        ActivityLogger::log($request, 'view_cart', [
+            'item_count' => $cart->current()->items()->count(),
+        ]);
+
         return view('ecommerce.cartPage.index', ['cart' => $currentCart->load('items.product'),]);
     }
 
@@ -64,11 +79,20 @@ class CartController extends Controller
         $request->validate(['quantity' => 'required|integer|min:1',]);
         $item->update(['quantity' => $request->integer('quantity'),]);
 
+        ActivityLogger::log($request, 'update_cart_item', [
+            'product_id'    => $item->product_id,
+            'new_quantity'  => $request->integer('quantity'),
+        ]);
+        
         return back()->with('success', 'Cantidad actualizada');
     }
 
-    public function destroy(EcoCartItem $item): RedirectResponse
+    public function destroy(EcoCartItem $item, Request $request): RedirectResponse
     {
+        ActivityLogger::log($request, 'remove_cart_item', [
+            'product_id' => $item->product_id,
+        ]);
+
         $item->delete();
         return back()->with('success', 'Producto eliminado del carrito');
     }
@@ -90,11 +114,9 @@ class CartController extends Controller
 
     public function restore(Request $request, EcoCart $cart)
     {
-        // 1) Vaciar el carrito actual (opcional)
         $current = $this->cart->current(); 
         $current->items()->delete();
 
-        // 2) Copiar items del carro abandonado al carrito actual
         foreach ($cart->items as $item) {
             $current->items()->create([
                 'product_id'    => $item->product_id,
@@ -104,12 +126,12 @@ class CartController extends Controller
             ]);
         }
 
-        // 3) Opcional: borrar el carro abandonado o marcarlo como “restaurado”
-        // $cart->delete();
+        ActivityLogger::log($request, 'restore_abandoned_cart', [
+            'restored_cart_id' => $cart->id,
+            'items_count' => $cart->items()->count(),
+        ]);
 
-        return redirect()
-            ->route('cart.show')
-            ->with('success', 'Tu carro abandonado ha sido restaurado.');
+        return redirect()->route('cart.show')->with('success', 'Tu carro abandonado ha sido restaurado.');
     }
 
 }

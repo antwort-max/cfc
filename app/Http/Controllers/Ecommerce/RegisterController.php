@@ -8,6 +8,7 @@ use App\Models\EcoCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Helpers\ActivityLogger; 
 
 class RegisterController extends Controller
 {
@@ -37,6 +38,13 @@ class RegisterController extends Controller
         }
 
         Auth::guard('customer')->login($customer);
+
+        ActivityLogger::log($request, 'register_from_guest', [
+            'customer_id' => $customer->id,
+            'email'       => $customer->email,
+            'linked_cart' => isset($token),
+        ]);
+
 
         return redirect()->route('account.dashboard')->with('success', 'Tu cuenta ha sido creada y tus carritos vinculados.');
     }

@@ -8,6 +8,7 @@ use App\View\Components\TopBanner;
 use Illuminate\Http\Request;
 use App\Models\WebThemeOption;
 use App\Models\WebMenu;
+use App\Helpers\ActivityLogger; 
 
 class ProductSearchController extends Controller
 {
@@ -16,28 +17,16 @@ class ProductSearchController extends Controller
 
     public function __construct()
     {
-
-        $this->themeOptions = WebThemeOption::query()
-            ->where('status', true)
-            ->latest('id')
-            ->first();
-
+        $this->themeOptions = WebThemeOption::query()->where('status', true)->latest('id')->first();
         view()->share('themeOptions', $this->themeOptions);
 
-        $this->menus = WebMenu::query()
-            ->with('children')           
-            ->where('status', true)
-            ->whereNull('parent_id')
-            ->orderBy('order')
-            ->get();
-        
+        $this->menus = WebMenu::query()->with('children')->where('status', true)->whereNull('parent_id')->orderBy('order')->get();
         view()->share('menus', $this->menus);
     }
 
     public function index(Request $request)
     {
         $banner = [];
-
         $q = $request->input('q');
 
         $products = PrdProduct::with(['family', 'subfamily'])
@@ -54,22 +43,14 @@ class ProductSearchController extends Controller
             })
             ->paginate(20)->withQueryString();
         
-        $categories = $products->pluck('category')
-            ->filter()
-            ->unique('id')
-            ->values();
+        $categories = $products->pluck('category')->filter()->unique('id')->values();
+        $families = $products->pluck('family')->filter()->unique('id')->values();                
+        $brands = $products->pluck('brand')->filter()->unique('id')->values();
 
-        $families = $products
-            ->pluck('family')        
-            ->filter()                 
-            ->unique('id')             
-            ->values();                
-        
-        $brands = $products
-            ->pluck('brand')
-            ->filter()
-            ->unique('id')
-            ->values();
+        ActivityLogger::log($request, 'search_products', [
+            'query'         => $q,
+            'result_count'  => $products->total(),
+        ]);
 
         return view('ecommerce.products.list', compact('banner', 'products', 'families', 'brands', 'categories'));
     }

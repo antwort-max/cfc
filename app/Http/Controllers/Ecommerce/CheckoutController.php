@@ -11,6 +11,7 @@ use App\Mail\QuoteMail;
 use Illuminate\Support\Str;
 use App\Models\WebThemeOption;
 use App\Models\WebMenu;
+use App\Helpers\ActivityLogger; 
 
 class CheckoutController extends Controller
 {

@@ -8,6 +8,7 @@ use App\Models\PrdFamily;
 use Illuminate\Http\Request;
 use App\Models\WebThemeOption;
 use App\Models\WebMenu;
+use App\Helpers\ActivityLogger; 
 
 class FamilyProductController extends Controller
 {
@@ -16,62 +17,30 @@ class FamilyProductController extends Controller
 
     public function __construct()
     {
-
-        $this->themeOptions = WebThemeOption::query()
-            ->where('status', true)
-            ->latest('id')
-            ->first();
-
+        $this->themeOptions = WebThemeOption::query()->where('status', true)->latest('id')->first();
         view()->share('themeOptions', $this->themeOptions);
 
-        $this->menus = WebMenu::query()
-            ->with('children')           
-            ->where('status', true)
-            ->whereNull('parent_id')
-            ->orderBy('order')
-            ->get();
-        
+        $this->menus = WebMenu::query()->with('children')->where('status', true)->whereNull('parent_id')->orderBy('order')->get();
         view()->share('menus', $this->menus);
     }
 
    
     public function show(PrdFamily $family)
     {
-     
         $banner = $family;
+        $products = PrdProduct::with(['family', 'subfamily', 'brand'])->where('family_id', $family->id)->paginate(20)->withQueryString();
+        $categories = $products->pluck('category')->filter()->unique('id')->values();
 
-        // Obtiene productos de la familia
-        $products = PrdProduct::with(['family', 'subfamily', 'brand'])
-            ->where('family_id', $family->id)
-            ->paginate(20)->withQueryString();
+        $families = $products->pluck('family')->filter()->unique('id')->values();
+        $brands = $products->pluck('brand')->filter()->unique('id')->values();
 
-        $categories = $products
-            ->pluck('category')
-            ->filter()
-            ->unique('id')
-            ->values();
+        ActivityLogger::log(request(), 'view_family_products', [
+            'family_id'     => $family->id,
+            'family_name'   => $family->name,
+            'product_count' => $products->total(),
+        ]);
 
-        $families = $products
-            ->pluck('family')
-            ->filter()
-            ->unique('id')
-            ->values();
-
-        // Marcas únicas en estos productos
-        $brands = $products
-            ->pluck('brand')
-            ->filter()
-            ->unique('id')
-            ->values();
-
-        // Renderiza la lista reutilizando la vista de productos
-        return view('ecommerce.products.list', compact(
-            'categories',
-            'banner',
-            'products',
-            'families',
-            'brands',
-        ))->with('currentFamily', $family);
+        return view('ecommerce.products.list', compact('categories', 'banner', 'products', 'families', 'brands',))->with('currentFamily', $family);
     }
 }
 
