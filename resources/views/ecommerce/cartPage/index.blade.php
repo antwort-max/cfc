@@ -16,13 +16,20 @@
                 {{ session('error') }}
             </div>
         @endif
-        
-        <h1 class="text-3xl font-bold mb-6 flex items-baseline space-x-2">
-            <span>Carrito {{ $cart->id }}</span>
-            <span class="text-base font-medium text-gray-600">
-                ({{ $cart->updated_at->format('D: d/m/Y H:i') }})
-            </span>
-        </h1>
+
+        <div class="mb-6 flex items-center justify-between">
+            <a href="{{ url()->previous() }}"
+            class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded shadow text-sm font-medium">
+                ← Volver
+            </a>
+
+            <h1 class="text-2xl md:text-3xl font-bold flex items-baseline space-x-2">
+                <span>Carrito {{ $cart->id }}</span>
+                <span class="text-base font-medium text-gray-600">
+                    ({{ $cart->updated_at->format('D: d/m/Y H:i') }})
+                </span>
+            </h1>
+        </div>
 
         @if ($cart->items->isEmpty())
             <p class="text-gray-600">Tu carrito está vacío.</p>
@@ -69,31 +76,46 @@
                 </tbody>
             </table>
 
-            {{-- Total de la venta y botón de cliente --}}
-            <div class="mt-6 flex justify-between items-center border-t pt-4">
-                {{-- Cálculo del total --}}
-                @php
-                    $total = $cart->items->sum(fn($item) => $item->package_price * $item->quantity);
-                @endphp
+            {{-- Total de la venta y acciones --}}
+@php
+    $neto = $cart->items->sum(fn($item) => $item->package_price * $item->quantity);
+    $iva = round($neto * 0.19);
+    $total = $neto + $iva;
+@endphp
 
-                <span class="text-xl font-semibold">
-                    Total: ${{ number_format($total, 0, ',', '.') }}
-                </span>
+<div class="mt-6 grid md:grid-cols-2 gap-6 border-t pt-4">
 
-                {{-- Botón seleccionar o crear cliente --}}
-                <a href="{{ route('customer.login') }}"
-                   class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
-                    Seleccionar / Crear Cliente
-                </a>
-            </div>
+    {{-- Acciones del cliente --}}
+    <div class="flex items-center space-x-3">
+        <a href="{{ route('customer.login', [
+            'redirect' => route('cart.show')
+            ]) }}"
+            class="px-3 py-1.5 ...">
+            Seleccionar / Crear Cliente
+        </a>
 
-            {{-- Checkout rápido --}}
-            <div class="mt-6 flex justify-end">
-                <a href="{{ route('checkout.show') }}"
-                   class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
-                    Checkout rápido
-                </a>
-            </div>
+        <a href="{{ route('checkout.show') }}"
+           class="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-700 text-white rounded font-medium">
+            Checkout rápido
+        </a>
+    </div>
+
+    {{-- Totales --}}
+    <div class="text-right text-sm space-y-1">
+        <div class="flex justify-between">
+            <span class="text-gray-600">Subtotal Neto:</span>
+            <span>${{ number_format($neto, 0, ',', '.') }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">IVA (19%):</span>
+            <span>${{ number_format($iva, 0, ',', '.') }}</span>
+        </div>
+        <div class="flex justify-between text-lg font-semibold border-t pt-2">
+            <span>Total a Pagar:</span>
+            <span>${{ number_format($total, 0, ',', '.') }}</span>
+        </div>
+    </div>
+</div>
         @endif
     </div>
 @endsection

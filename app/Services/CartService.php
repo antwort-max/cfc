@@ -18,6 +18,20 @@ class CartService
         $this->taxRate = config('cart.tax_rate');
     }
 
+    public function assignGuestCartToCustomer(int $customerId): void
+    {
+        if ($token = Session::get('guest_token')) {
+            EcoCart::where('guest_token', $token)
+                ->update([
+                    'customer_id' => $customerId,
+                    'guest_token' => null,
+                    'status'      => EcoCart::STATUS_PENDING,
+                ]);
+
+            Session::forget('guest_token');
+        }
+    }
+
     protected function getToken(): string
     {
         if (Auth::check()) {
@@ -32,22 +46,40 @@ class CartService
 
     public function current(): EcoCart
     {
-        if ($user = Auth::guard('customer')->user()) {
+        // 1) Si está logueado como cliente...
+        if (Auth::guard('customer')->check()) {
+            $customer = Auth::guard('customer')->user();
+
+            // Busca o crea un carrito open para este customer_id
             return EcoCart::firstOrCreate(
-                ['customer_id' => $user->id, 'status' => 'open'],
-                ['ip_address'  => request()->ip()]
+                [
+                    'customer_id' => $customer->id,
+                    'status'      => EcoCart::STATUS_OPEN,
+                ],
+                [
+                    // campos adicionales en el CREATE, p.ej. IP
+                    'ip_address' => request()->ip(),
+                ]
             );
         }
 
-        // Invitado: usa guest_token de sesión
-        if (! Session::has('guest_token')) {
-            Session::put('guest_token', Str::uuid()->toString());
+        // 2) Si NO está logueado, manejo de invitado:
+        // — Genero o recupero un guest_token de sesión
+        $session = session();
+        if (! $session->has('guest_token')) {
+            $session->put('guest_token', Str::uuid()->toString());
         }
-        $token = Session::get('guest_token');
+        $token = $session->get('guest_token');
 
+        // Busca o crea un carrito open para este guest_token
         return EcoCart::firstOrCreate(
-            ['guest_token' => $token, 'status' => 'open'],
-            ['ip_address'   => request()->ip()]
+            [
+                'guest_token' => $token,
+                'status'      => EcoCart::STATUS_OPEN,
+            ],
+            [
+                'ip_address' => request()->ip(),
+            ]
         );
     }
 

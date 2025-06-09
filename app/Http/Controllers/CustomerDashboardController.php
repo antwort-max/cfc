@@ -17,7 +17,21 @@ class CustomerDashboardController extends Controller
     public function sales(Request $request)
     {
         $customer = $request->user('customer');
-        $sales = EcoCart::where('customer_id', $customer->id)->get();
-        return view('ecommerce.customer.sales', compact('sales'));
+        $sales = EcoCart::where('customer_id', $customer->id)
+            ->where('status', EcoCart::STATUS_CONVERTED)
+            ->get();
+        
+            return view('ecommerce.customer.sales', compact('sales'));
     }
+
+    public function abandoned(Request $request)
+    {
+        $customer = $request->user('customer');
+        $carts = EcoCart::where('customer_id', $customer->id)
+            ->where('status', 'pending')
+            ->get();
+
+        return view('ecommerce.customer.abandonedCarts', compact('carts'));
+    }
+
 }

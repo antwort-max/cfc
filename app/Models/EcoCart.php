@@ -24,9 +24,12 @@ class EcoCart extends Model
         'send_method',
     ];
 
+     // Estados posibles
     public const STATUS_OPEN      = 'open';
-    public const STATUS_CONVERTED = 'converted';
+    public const STATUS_PENDING   = 'pending';
     public const STATUS_ABANDONED = 'abandoned';
+    public const STATUS_CONVERTED = 'converted';
+
 
     protected $attributes = [
         'status' => self::STATUS_OPEN,
@@ -54,4 +57,17 @@ class EcoCart extends Model
     {
         return $this->hasMany(EcoCartItem::class, 'cart_id');
     }
+
+    public function scopeOpen($q) {
+        return $q->where('status', self::STATUS_OPEN);
+    }
+
+    public function scopeForCustomer($q, $customerId) {
+        return $q->where('customer_id', $customerId);
+    }
+    
+    public function scopeForToken($q, $token) {
+        return $q->where('guest_token', $token);
+    }
+
 }

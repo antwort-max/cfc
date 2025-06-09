@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\CartItemResource\Pages;
+namespace App\Filament\Ecommerce\Resources\CartItemResource\Pages;
 
-use App\Filament\Resources\CartItemResource;
+use App\Filament\Ecommerce\Resources\CartItemResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 

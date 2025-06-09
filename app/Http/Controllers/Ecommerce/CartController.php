@@ -11,25 +11,14 @@ use Illuminate\Support\Str;
 use App\Models\WebThemeOption;
 use App\Models\WebMenu;
 use App\Models\EcoCart;
-use App\Helpers\ActivityLogger;   
+use App\Helpers\ActivityLogger;  
 
-class CartController extends Controller
+
+class CartController extends BaseEcommerceController
 {
-    protected $themeOptions;
-    protected $menus;
 
-    public function __construct()
+    public function show(CartService $cart, Request $request)
     {
-        $this->themeOptions = WebThemeOption::query()->where('status', true)->latest('id')->first();
-        view()->share('themeOptions', $this->themeOptions);
-
-        $this->menus = WebMenu::query()->with('children')->where('status', true)->whereNull('parent_id')->orderBy('order')->get();
-        view()->share('menus', $this->menus);
-    }
-
-    public function index(Request $request, CartService $cart)
-    {
-
         if (! $request->session()->has('guest_token')) {
             $request->session()->put('guest_token', Str::uuid()->toString());
         }
@@ -60,19 +49,10 @@ class CartController extends Controller
             'quantity' => $request->integer('quantity'),
         ]);
 
-        return back()->with('success', 'Producto añadido al carrito');
+        return redirect()->route('cart.show')->with('success', 'Producto añadido al carrito');
     }
 
-    public function show(CartService $cart, Request $request)
-    {
-        $currentCart = $cart->current();
-
-        ActivityLogger::log($request, 'view_cart', [
-            'item_count' => $cart->current()->items()->count(),
-        ]);
-
-        return view('ecommerce.cartPage.index', ['cart' => $currentCart->load('items.product'),]);
-    }
+   
 
     public function update(EcoCartItem $item, Request $request): RedirectResponse
     {
@@ -97,41 +77,66 @@ class CartController extends Controller
         return back()->with('success', 'Producto eliminado del carrito');
     }
 
-    public function selectCustomer(Request $request)
+
+    public function restore(Request $request, EcoCart $abandonedCart, CartService $cartService)
     {
-        return view('ecommerce.cartPage.selectCustomer', ['clients' => Client::all(), ]);
-    }
+        $currentCart = $cartService->current();
+        $currentCart->items()->delete();
 
-    public function abandoned(Request $request)
-    {
-        $customer = $request->user('customer');
-        $carts = EcoCart::where('user_id', $customer->id)
-            ->where('status', 'pending')
-            ->get();
-
-        return view('ecommerce.customer.abandonedCarts', compact('carts'));
-    }
-
-    public function restore(Request $request, EcoCart $cart)
-    {
-        $current = $this->cart->current(); 
-        $current->items()->delete();
-
-        foreach ($cart->items as $item) {
-            $current->items()->create([
+        foreach ($abandonedCart->items as $item) {
+            $currentCart->items()->create([
                 'product_id'    => $item->product_id,
                 'quantity'      => $item->quantity,
                 'package_price' => $item->package_price,
-                // …otros campos que use tu EcoCartItem
             ]);
         }
 
         ActivityLogger::log($request, 'restore_abandoned_cart', [
-            'restored_cart_id' => $cart->id,
-            'items_count' => $cart->items()->count(),
+            'restored_cart_id' => $abandonedCart->id,
+            'items_count'      => $abandonedCart->items()->count(),
         ]);
 
-        return redirect()->route('cart.show')->with('success', 'Tu carro abandonado ha sido restaurado.');
+        return redirect()
+            ->route('cart.show')
+            ->with('success', 'Tu carro abandonado ha sido restaurado.');
     }
+    
+    public function assignCustomer(Request $request, CartService $cartService)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required|exists:cus_customers,id',
+        ]);
+
+        $currentCart = $cartService->current();
+
+        $currentCart->update([
+            'customer_id' => $data['customer_id'],
+            'guest_token' => null,
+            'status'      => EcoCart::STATUS_PENDING,
+        ]);
+
+        $request->session()->forget('guest_token');
+
+        return redirect()->route('cart.show')
+                        ->with('success', 'Carrito vinculado al cliente.');
+    }
+
+    public function showAbandoned(Request $request)
+    {
+        $customer = $request->user('customer');
+
+        // Busca todos los carritos que no han sido convertidos en orden
+        $carts = EcoCart::where('customer_id', $customer->id)
+                        ->whereIn('status', [
+                            EcoCart::STATUS_OPEN,
+                            EcoCart::STATUS_ABANDONED,
+                            EcoCart::STATUS_CONVERTED, // Si quisieras incluir convertidos, sino quítalo
+                        ])
+                        ->where('id', '!=', session('current_cart_id')) // opcional: excluye el actual
+                        ->get();
+
+        return view('ecommerce.customer.abandonedCarts', compact('carts'));
+    }
+
 
 }

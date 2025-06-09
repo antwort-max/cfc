@@ -7,7 +7,7 @@
     {{-- Carrusel de banners --}}
     @include('ecommerce.partials.banner-carousel', ['banners' => $banners])
 
-    <div class="flex items-center justify-center py-32">
-        <h1 class="text-4xl font-bold text-primary">LandingPage</h1>
-    </div>
+    {{-- Carrusel de banners --}}
+    @include('ecommerce.partials.areas', ['areas' => $areas])
+
 @endsection

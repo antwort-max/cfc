@@ -15,7 +15,7 @@
                 <tr class="border-b">
                     <th class="py-2 text-left">ID Carro</th>
                     <th class="py-2 text-left">Fecha</th>
-                    <th class="py-2 text-right">Items</th>
+                    <th class="py-2 text-left">Items - Monto</th>
                     <th class="py-2 text-left">Acción</th>
                 </tr>
             </thead>
@@ -24,9 +24,9 @@
                     <tr class="border-b">
                         <td class="py-3">#{{ $cart->id }}</td>
                         <td class="py-3">{{ $cart->created_at->format('d/m/Y H:i') }}</td>
-                        <td class="py-3 text-right">{{ $cart->items->count() }}</td>
+                        <td class="py-3">{{ $cart->items->count() }} - $ {{ $cart->amount }}</td>
                         <td class="py-3">
-                            <a href="{{ route('cart.showAbandoned', $cart) }}"
+                            <a href="{{ route('cart.show', $cart) }}"
                                class="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs">
                                 Ver</a>
                         </td>

@@ -14,7 +14,6 @@ use Filament\Tables\Table;
 class WebActivityResource extends Resource
 {
     protected static ?string $model = WebActivity::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-eye';
     protected static ?string $navigationLabel = 'Actividades Web';
     protected static ?string $modelLabel = 'Actividad Web';
@@ -39,7 +38,7 @@ class WebActivityResource extends Resource
 
                 Forms\Components\Textarea::make('event_data')
                     ->label('Datos del Evento')
-                    ->json()
+                    ->formatStateUsing(fn ($state) => json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
                     ->disabled(),
 
                 Forms\Components\TextInput::make('duration_seconds')

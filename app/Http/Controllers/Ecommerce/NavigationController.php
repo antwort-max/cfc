@@ -8,6 +8,7 @@ use App\Models\WebLocation;
 use App\Models\WebBanner;
 use App\Models\WebThemeOption;
 use App\Models\WebMenu;  
+use App\Models\WebArea;  
 use Illuminate\Support\Facades\Auth;   
 use App\Helpers\ActivityLogger;   
 
@@ -27,10 +28,11 @@ class NavigationController extends Controller
     {
         ActivityLogger::log($request, 'visit_landing');
 
+        $areas = WebArea::get();
         $banners = WebBanner::query()->where('status', true)->orderBy('position')->get();
         $menus = WebMenu::query()->with('children')->where('status', true)->whereNull('parent_id')->orderBy('order')->get();
 
-        return view('ecommerce.landingPage.index', compact('banners', 'menus'));
+        return view('ecommerce.landingPage.index', compact('banners', 'menus', 'areas'));
     }
 
     

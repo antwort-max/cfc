@@ -2,47 +2,46 @@
 
 namespace App\Http\Controllers\Ecommerce;
 
-use App\Http\Controllers\Controller;
-use App\Models\PrdProduct;
 use App\Models\PrdFamily;
+use App\Models\PrdProduct;
 use Illuminate\Http\Request;
-use App\Models\WebThemeOption;
-use App\Models\WebMenu;
-use App\Helpers\ActivityLogger; 
+use App\Helpers\ActivityLogger;
 
-class FamilyProductController extends Controller
+class FamilyProductController extends BaseEcommerceController
 {
-    protected $themeOptions;
-    protected $menus;
-
-    public function __construct()
-    {
-        $this->themeOptions = WebThemeOption::query()->where('status', true)->latest('id')->first();
-        view()->share('themeOptions', $this->themeOptions);
-
-        $this->menus = WebMenu::query()->with('children')->where('status', true)->whereNull('parent_id')->orderBy('order')->get();
-        view()->share('menus', $this->menus);
-    }
-
-   
-    public function show(PrdFamily $family)
+    /**
+     * Muestra la lista de productos para una familia,
+     * evitando N+1 al eager-load de todas las relaciones necesarias.
+     */
+    public function show(Request $request, PrdFamily $family)
     {
         $banner = $family;
-        $products = PrdProduct::with(['family', 'subfamily', 'brand'])->where('family_id', $family->id)->paginate(20)->withQueryString();
+
+        // Eager-load 'category' junto con las demás relaciones
+        $products = PrdProduct::with(['family', 'subfamily', 'brand', 'category'])
+            ->where('family_id', $family->id)
+            ->paginate(20)
+            ->withQueryString();
+
+        // Agrupamos las relaciones ya cargadas sin consultas adicionales
         $categories = $products->pluck('category')->filter()->unique('id')->values();
+        $families   = $products->pluck('family')->filter()->unique('id')->values();
+        $brands     = $products->pluck('brand')->filter()->unique('id')->values();
 
-        $families = $products->pluck('family')->filter()->unique('id')->values();
-        $brands = $products->pluck('brand')->filter()->unique('id')->values();
-
-        ActivityLogger::log(request(), 'view_family_products', [
+        ActivityLogger::log($request, 'view_family_products', [
             'family_id'     => $family->id,
             'family_name'   => $family->name,
             'product_count' => $products->total(),
         ]);
 
-        return view('ecommerce.products.list', compact('categories', 'banner', 'products', 'families', 'brands',))->with('currentFamily', $family);
+        return view('ecommerce.products.list', compact(
+            'banner',
+            'products',
+            'families',
+            'brands',
+            'categories'
+        ))->with('currentFamily', $family);
     }
 }
-
 
 

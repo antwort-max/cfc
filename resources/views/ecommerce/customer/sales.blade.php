@@ -15,8 +15,8 @@
                 <tr class="border-b">
                     <th class="py-2 text-left">ID</th>
                     <th class="py-2 text-left">Fecha</th>
-                    <th class="py-2 text-left">Estado</th>
-                    <th class="py-2 text-right">Total</th>
+                    <th class="py-2 text-left">Items - Monto</th>
+                    <th class="py-2 text-left">Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,24 +24,12 @@
                     <tr class="border-b">
                         <td class="py-3">#{{ $order->id }}</td>
                         <td class="py-3">{{ $order->created_at->format('d/m/Y') }}</td>
-                        <td class="py-3">{{ ucfirst($order->status) }}</td>
-                        <td class="py-3 text-right">$ {{ number_format($order->amount, 0, ',', '.') }}</td>
-                   
+                        <td class="py-3">{{ $order->items->count() }} - $ {{ number_format($order->amount, 0, ',', '.') }}</td>
                         <td class="py-3 flex space-x-2">
-                            <!-- Ver detalles -->
-                            <a href="{{ route('cart.showAbandoned', $order->id) }}"
+                            <a href="{{ route('cart.show', $order->id) }}"
                             class="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs">
                                 Ver
                             </a>
-
-                            <!-- Restaurar carro -->
-                            <form action="{{ route('cart.restore', $order->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                        class="px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs">
-                                    Restaurar
-                                </button>
-                            </form>
                         </td>
                     </tr>
                 @endforeach

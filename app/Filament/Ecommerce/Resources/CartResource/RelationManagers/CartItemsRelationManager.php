@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CartResource\RelationManagers;
+namespace App\Filament\Ecommerce\Resources\CartResource\RelationManagers;
 
 use Filament\Resources\RelationManagers\RelationManager; // Changed base class import
 use Filament\Tables;

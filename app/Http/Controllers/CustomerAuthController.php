@@ -3,27 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\CusCustomer;
-use App\Models\EcoCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\WebActivity;
+use App\Services\CartService;
 
 class CustomerAuthController extends Controller
 {
-    /* ---------- Formularios ---------- */
     public function showRegister()
     {
         return view('ecommerce.auth.register');
     }
 
-    public function showLogin()
+    public function showLogin(Request $req)
     {
+        if ($req->has('redirect')) {
+            $req->session()->put('url.intended', $req->query('redirect'));
+        }
+
         return view('ecommerce.auth.login');
     }
 
-    /* ---------- Registro ---------- */
-    public function register(Request $req)
+    public function register(Request $req, CartService $cartService)
     {
         $req->validate([
             'first_name' => 'required|string|max:60',
@@ -40,21 +41,15 @@ class CustomerAuthController extends Controller
             'status'     => true,
         ]);
 
-        // Loguea al cliente recién registrado
         Auth::guard('customer')->login($customer);
 
-        // —— Persistencia del carrito ——  
-        if ($token = $req->session()->get('guest_token')) {
-            EcoCart::where('guest_token', $token)
-                   ->update(['user_id' => $customer->id]);
-        }
-        // —— fin persistencia ——  
+        // Asigna el carrito de invitado al nuevo cliente
+        $cartService->assignGuestCartToCustomer($customer->id);
 
         return redirect()->route('customer.dashboard');
     }
 
-    /* ---------- Login ---------- */
-    public function login(Request $req)
+    public function login(Request $req, CartService $cartService)
     {
         $cred = $req->validate([
             'email'    => 'required|email',
@@ -62,22 +57,15 @@ class CustomerAuthController extends Controller
         ]);
 
         if (Auth::guard('customer')->attempt($cred, $req->boolean('remember'))) {
+            $customer = $req->user('customer');
 
-            // última conexión
-            $req->user('customer')
-                ->forceFill(['last_login_at' => now()])
-                ->saveQuietly();
-
+            $customer->forceFill(['last_login_at' => now()])->saveQuietly();
             $req->session()->regenerate();
 
-            // —— Persistencia del carrito ——  
-            if ($token = $req->session()->get('guest_token')) {
-                EcoCart::where('guest_token', $token)
-                       ->update(['user_id' => $req->user('customer')->id]);
-            }
-            // —— fin persistencia ——  
+            // Asigna el carrito de invitado al cliente
+            $cartService->assignGuestCartToCustomer($customer->id);
 
-            return redirect()->intended(route('customer.dashboard'));
+            return redirect()->intended(route('cart.show'));
         }
 
         return back()->withErrors([
@@ -85,7 +73,6 @@ class CustomerAuthController extends Controller
         ])->onlyInput('email');
     }
 
-    /* ---------- Logout ---------- */
     public function logout(Request $req)
     {
         Auth::guard('customer')->logout();

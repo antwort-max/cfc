@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Ecommerce\Resources;
 
-use App\Filament\Resources\CartResource\Pages;
-use App\Filament\Resources\CartResource\RelationManagers;
+use App\Filament\Ecommerce\Resources\CartResource\Pages;
+use App\Filament\Ecommerce\Resources\CartResource\RelationManagers;
 use App\Models\EcoCart;
 use Filament\Forms;
 use Filament\Forms\Components\Select;

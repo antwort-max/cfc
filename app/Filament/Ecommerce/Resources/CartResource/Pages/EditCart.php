@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\CartResource\Pages;
+namespace App\Filament\Ecommerce\Resources\CartResource\Pages;
 
-use App\Filament\Resources\CartResource;
+use App\Filament\Ecommerce\Resources\CartResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

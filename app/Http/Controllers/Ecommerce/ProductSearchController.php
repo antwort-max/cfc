@@ -10,19 +10,9 @@ use App\Models\WebThemeOption;
 use App\Models\WebMenu;
 use App\Helpers\ActivityLogger; 
 
-class ProductSearchController extends Controller
+class ProductSearchController extends BaseEcommerceController
 {
-    protected $themeOptions;
-    protected $menus;
-
-    public function __construct()
-    {
-        $this->themeOptions = WebThemeOption::query()->where('status', true)->latest('id')->first();
-        view()->share('themeOptions', $this->themeOptions);
-
-        $this->menus = WebMenu::query()->with('children')->where('status', true)->whereNull('parent_id')->orderBy('order')->get();
-        view()->share('menus', $this->menus);
-    }
+  
 
     public function index(Request $request)
     {

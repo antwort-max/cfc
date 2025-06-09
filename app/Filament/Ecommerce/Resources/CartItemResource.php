@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Ecommerce\Resources;
 
-use App\Filament\Resources\CartItemResource\Pages;
+use App\Filament\Ecommerce\Resources\CartItemResource\Pages;
 use App\Models\EcoCartItem;
 use Filament\Forms;
 use Filament\Forms\Components\Hidden;

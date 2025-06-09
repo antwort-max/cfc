@@ -32,12 +32,10 @@ Route::middleware(['auth:customer'])->group(function () {
         ->name('customer.profile');
 
     // Historial de ventas
-    Route::get('customer/sales', [App\Http\Controllers\CustomerDashboardController::class, 'sales'])
-        ->name('customer.sales');
+    Route::get('customer/sales', [App\Http\Controllers\CustomerDashboardController::class, 'sales'])->name('customer.sales');
 
     // Carros abandonados
-    Route::get('customer/abandoned-carts', [App\Http\Controllers\Ecommerce\CartController::class, 'abandoned'])
-        ->name('customer.abandonedCarts');
+    Route::get('customer/abandoned-carts', [App\Http\Controllers\CustomerDashboardController::class, 'abandoned'])->name('customer.abandonedCarts');
 });
 
 

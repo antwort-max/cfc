@@ -26,9 +26,9 @@ class TodaysDelayedEmployees extends TableWidget
     {
         return [
             Tables\Columns\TextColumn::make('employee.name')->label('Empleado'),
-            Tables\Columns\TextColumn::make('delay_time')
-                ->label('Hora de Atraso')
-                ->time('H:i'),
+            Tables\Columns\TextColumn::make('minutes_late')
+                ->label('Minutos de Atraso')
+                ->suffix(' min'),
         ];
     }
 

@@ -13,7 +13,7 @@ use App\Models\WebThemeOption;
 use App\Models\WebMenu;
 use App\Helpers\ActivityLogger; 
 
-class CheckoutController extends Controller
+class CheckoutController extends BaseEcommerceController
 {
     protected $themeOptions;
     protected $menus;
@@ -21,23 +21,7 @@ class CheckoutController extends Controller
 
     public function __construct(CartService $cartService)
     {
-        $this->themeOptions = WebThemeOption::query()
-            ->where('status', true)
-            ->latest('id')
-            ->first();
-
-        view()->share('themeOptions', $this->themeOptions);
-
-        $this->menus = WebMenu::query()
-            ->with('children')           
-            ->where('status', true)
-            ->whereNull('parent_id')
-            ->orderBy('order')
-            ->get();
-        
-        view()->share('menus', $this->menus);
-
-        $this->cartService = $cartService;
+      
     }
 
     public function show(Request $request)
