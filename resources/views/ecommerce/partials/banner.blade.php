@@ -15,7 +15,6 @@
             </div>
         </div>
 
-        {{-- Descripción (2/3 en escritorio) --}}
 <div class="w-full md:w-2/3 p-6 flex items-center bg-white/90 backdrop-blur-sm">
     <article class="prose prose-sm md:prose text-gray-700">
         {!! $banner->description !!}

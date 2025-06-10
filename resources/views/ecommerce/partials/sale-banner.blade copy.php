@@ -1,17 +1,8 @@
 @inject('cartService', \App\Http\Controllers\Ecommerce\Services\CartService::class)
 
 @php
-    // Inicializa en 0 por defecto
-    $cartCount = 0;
-
-    try {
-        // Cuenta vía query, siempre devuelve 0 si no hay items
-        $currentCart = $cartService->current();
-        $cartCount   = $currentCart->items()->count();
-    } catch (\Throwable $e) {
-        // Si algo falla (relación no definida, tablas vacías, etc.)
-        $cartCount = 0;
-    }
+    $currentCart = $cartService->current();
+    $cartCount   = $currentCart->items->count();
 @endphp
 
 <div class="w-full bg-white border-b mt-12">

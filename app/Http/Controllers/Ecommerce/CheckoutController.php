@@ -19,10 +19,6 @@ class CheckoutController extends BaseEcommerceController
     protected $menus;
     protected CartService $cartService;
 
-    public function __construct(CartService $cartService)
-    {
-      
-    }
 
     public function show(Request $request)
     {
@@ -30,30 +26,21 @@ class CheckoutController extends BaseEcommerceController
             $request->session()->put('guest_token', Str::uuid()->toString());
         }
 
-        $currentCart = $this->cartService
-                            ->current()
-                            ->load('items.product');
+        $currentCart = $this->cartService->current()->load('items.product');
 
         return view('ecommerce.checkout.form', compact('currentCart'));
-
     }
 
     public function process(Request $request)
     {
-        // 1) Validación condicional
         $data = $request->validate([
             'send_method'     => 'required|in:email,printed,whatsapp',
             'explanation'     => 'nullable|string',
             'recipient_email' => 'required_if:send_method,email|email',
-           // 'recipient_phone' => 'required_if:send_method,whatsapp|string',
         ]);
 
-        // 2) Carga el carrito actual
-        $currentCart = $this->cartService
-                             ->current()
-                             ->load('items.product');
+        $currentCart = $this->cartService->current()->load('items.product');
 
-        // 3) Procesa según el método de envío
         switch ($data['send_method']) {
             case 'email':
                 $mailData = [
@@ -78,7 +65,7 @@ class CheckoutController extends BaseEcommerceController
                 break;
 
             case 'printed':
-                // Generate PDF and stream to browser
+
                 $pdf = Pdf::loadView('ecommerce.checkout.print', array_merge($shared, [
                     'items'  => $currentCart->items,
                     'taxes'  => $currentCart->taxes,
@@ -88,7 +75,6 @@ class CheckoutController extends BaseEcommerceController
                 dd($pdf);
         }
 
-        // 4) Actualiza estado y datos del carrito
         $currentCart->update([
             'status'      => EcoCart::STATUS_CONVERTED,
             'send_method' => $data['send_method'],
@@ -97,13 +83,9 @@ class CheckoutController extends BaseEcommerceController
             'taxes'       => $currentCart->taxes,
         ]);
 
-        // 5) Limpia token de invitado si existía
         $request->session()->forget('guest_token');
 
-        // 6) Redirige con mensaje de éxito
-        return redirect()
-            ->route('checkout.thanks')
-            ->with('success', 'Tu cotización ha sido procesada correctamente.');
+        return redirect()->route('checkout.thanks')->with('success', 'Tu cotización ha sido procesada correctamente.');
     }
 
     public function thanks()

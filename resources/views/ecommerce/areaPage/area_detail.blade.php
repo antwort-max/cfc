@@ -2,16 +2,11 @@
 
 @section('content')
     
-
-
     @if(!empty($banner))
         <br>
         @include('ecommerce.partials.banner', ['banner' => $banner])
     @endif
-
-
-
-    
+   
     @include('ecommerce.partials.categories', ['categories' => $categories])
 
     @if(isset($brands) && $brands->isNotEmpty())

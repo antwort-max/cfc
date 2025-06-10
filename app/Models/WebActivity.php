@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\CusCustomer;
 use Illuminate\Database\Eloquent\Model;
 
 class WebActivity extends Model
@@ -9,7 +10,7 @@ class WebActivity extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id',
+        'customer_id',
         'session_id',
         'event_type',
         'event_data',
@@ -26,9 +27,9 @@ class WebActivity extends Model
         'created_at' => 'datetime',
     ];
 
-    public function user()
+    public function customer()
     {
-        return $this->belongsTo(CusCustomer::class, 'user_id');
+        return $this->belongsTo(CusCustomer::class, 'customer_id');
     }
 
 }

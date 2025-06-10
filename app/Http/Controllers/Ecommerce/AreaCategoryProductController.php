@@ -10,7 +10,7 @@ use App\Models\PrdProduct;
 
 class AreaCategoryProductController extends Controller
 {
-    public function show(string $slug)
+    public function byArea(string $slug)
     {
         
         $area = WebArea::where('slug', $slug)->firstOrFail();
@@ -23,7 +23,6 @@ class AreaCategoryProductController extends Controller
             ->paginate(20)
             ->withQueryString();
         $brands = $products->pluck('brand')->filter()->unique('id')->values();
-
 
         return view('ecommerce.areaPage.area_detail', [
             'banner'     => $area,

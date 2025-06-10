@@ -29,6 +29,7 @@ class EcoCart extends Model
     public const STATUS_PENDING   = 'pending';
     public const STATUS_ABANDONED = 'abandoned';
     public const STATUS_CONVERTED = 'converted';
+    public const STATUS_MERGED    = 'merged'; 
 
 
     protected $attributes = [

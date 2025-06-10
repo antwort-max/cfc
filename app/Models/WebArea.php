@@ -16,7 +16,7 @@ class WebArea extends Model
         'name',
         'slug',
         'short_description',
-        'long_description',
+        'description',
         'image',
         'icon',
     ];

@@ -6,7 +6,7 @@
 
     @if(!empty($banner))
         <br>
-        @include('ecommerce.partials.banner', ['banner' => $banner])
+        @include('ecommerce.partials.banner', ['banner' => $banners])
     @endif
 
     @include('ecommerce.partials.categories', ['categories' => $categories])

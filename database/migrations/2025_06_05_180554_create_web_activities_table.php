@@ -9,11 +9,11 @@ return new class extends Migration {
     {
         Schema::create('web_activities', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->unsignedBigInteger('customer_id')->nullable()->index();
             $table->string('session_id')->index();
-            $table->string('event_type'); // Ej: 'visit_route', 'click', 'add_to_cart'
-            $table->json('event_data')->nullable(); // Detalles como producto, búsqueda, etc.
-            $table->integer('duration_seconds')->nullable(); // Tiempo en la página
+            $table->string('event_type'); 
+            $table->json('event_data')->nullable(); 
+            $table->integer('duration_seconds')->nullable(); 
             $table->string('url');
             $table->string('referrer')->nullable();
             $table->string('ip_address')->nullable();

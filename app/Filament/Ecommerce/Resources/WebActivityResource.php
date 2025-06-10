@@ -24,9 +24,9 @@ class WebActivityResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
+                Forms\Components\Select::make('customer_id')
                     ->label('Usuario')
-                    ->relationship('user', 'full_name') 
+                    ->relationship('customer', 'first_name') 
                     ->searchable()
                     ->disabled(),
 
@@ -60,7 +60,7 @@ class WebActivityResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')->label('Fecha')->dateTime()->sortable(),
-                Tables\Columns\TextColumn::make('user.full_name')->label('Usuario')->searchable(),
+                Tables\Columns\TextColumn::make('customer.first_name')->label('Usuario')->searchable(),
                 Tables\Columns\TextColumn::make('event_type')->label('Tipo')->searchable(),
                 Tables\Columns\TextColumn::make('url')->label('URL')->limit(40),
                 Tables\Columns\TextColumn::make('duration_seconds')->label('Duración')->sortable(),

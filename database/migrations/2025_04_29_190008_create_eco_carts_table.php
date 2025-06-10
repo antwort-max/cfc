@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('customer_id')->nullable()->comment('FK a cus_customers');
             $table->unsignedBigInteger('user_id')->nullable()->comment('FK opcional a users.id');
-            $table->enum('status', ['open','converted','abandoned','pending'])->default('open');
+            $table->enum('status', ['open','converted','abandoned','pending', 'merged'])->default('open');
             $table->string('ip_address', 45)->nullable()->comment('IP para carritos anónimos');
             $table->string('guest_token', 36)->nullable()->after('ip_address')->index();
             $table->text('explanation')->nullable()->comment('Explicación o nota del carrito');

@@ -36,7 +36,7 @@ class WebAreaResource extends Resource
                 Forms\Components\RichEditor::make('short_description')
                     ->label('Descripción corta'),
                 
-                Forms\Components\RichEditor::make('long_description')
+                Forms\Components\RichEditor::make('description')
                     ->label('Descripción larga'),
 
                 Forms\Components\FileUpload::make('image')

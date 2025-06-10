@@ -6,7 +6,7 @@ use App\Models\CusCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Services\CartService;
+use App\Http\Controllers\Ecommerce\Services\CartService;
 
 class CustomerAuthController extends Controller
 {

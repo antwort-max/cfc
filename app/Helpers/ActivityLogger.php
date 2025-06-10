@@ -11,7 +11,7 @@ class ActivityLogger
     public static function log(Request $request, string $eventType, ?array $data = null, ?int $duration = null): void
     {
         WebActivity::create([
-            'user_id' => Auth::guard('customer')->id() ?? Auth::id(),
+            'customer_id' => Auth::guard('customer')->id() ?? Auth::id(),
             'session_id' => $request->session()->getId(),
             'event_type' => $eventType,
             'event_data' => $data,

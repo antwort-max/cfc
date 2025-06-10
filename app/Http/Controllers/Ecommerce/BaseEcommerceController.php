@@ -13,6 +13,11 @@ class BaseEcommerceController extends Controller
 
     public function __construct()
     {
+        $this->shareCommonData();
+    }
+
+    protected function shareCommonData()
+    {
         $this->themeOptions = WebThemeOption::where('status', true)
             ->latest('id')->first();
         view()->share('themeOptions', $this->themeOptions);
@@ -22,6 +27,10 @@ class BaseEcommerceController extends Controller
             ->whereNull('parent_id')
             ->orderBy('order')
             ->get();
-        view()->share('menus', $this->menus);
+
+        view()->share([
+            'themeOptions' => $this->themeOptions,
+            'menus' => $this->menus
+        ]);
     }
 }
