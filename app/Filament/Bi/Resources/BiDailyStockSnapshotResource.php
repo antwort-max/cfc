@@ -55,6 +55,12 @@ class BiDailyStockSnapshotResource extends Resource
                 Tables\Columns\TextColumn::make('price')
                     ->money('CLP', true)
                     ->label('Precio'),
+                
+                Tables\Columns\TextColumn::make('margin')
+                    ->label('Margen')
+                    ->money('CLP', true)
+                    ->getStateUsing(fn (BiDailyStockSnapshot $record) => $record->price - $record->cost),
+                  
 
                 Tables\Columns\TextColumn::make('value')
                     ->money('CLP', true)
@@ -74,4 +80,6 @@ class BiDailyStockSnapshotResource extends Resource
             'index' => BiDailyStockSnapshotResource\Pages\ListBiDailyStockSnapshots::route('/'),
         ];
     }
+
+
 }

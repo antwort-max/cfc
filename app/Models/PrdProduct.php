@@ -24,7 +24,8 @@ class PrdProduct extends Model
         
         'unit',
         'unit_price',
-
+        'previous_price',
+        
         'package_unit',
         'package_qty',
         'package_price',

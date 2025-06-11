@@ -60,6 +60,7 @@ class SyncProductsController extends Controller
             }
            
             $unit = $item['unit'] ?? '';
+
             $unit_price = $item['unit_price'] ?? 0;
             $brand_code = $item['brand_code'] ?? null;
             $category_code = $item['category_code'] ?? null;
@@ -69,7 +70,7 @@ class SyncProductsController extends Controller
             $cost = $item['cost'] ?? 0;
 
             // 👈 aquí saltamos los productos no deseados
-            if (in_array($category_code, ['J02', 'POS', 'PIS'])) {
+            if (in_array($category_code, ['J02', 'POR', 'PIS', 'SPC'])) {
                        
                 $floatNumber = 1; // por defecto
                 $packageUnit = 'Caja'; // por defecto en estas categorías
@@ -157,6 +158,7 @@ class SyncProductsController extends Controller
                 'subfamily_id'     => $productData['subfamily_id'],
                 'brand_id'         => $productData['brand_id'],
                 'unit'             => $productData['unit'],
+                'previous_price'   => $product['unit_price'], // Guardamos el precio anterior],
                 'unit_price'       => $productData['unit_price'],
                 'package_unit'     => $productData['package_unit'],
                 'package_qty'      => $productData['package_qty'],

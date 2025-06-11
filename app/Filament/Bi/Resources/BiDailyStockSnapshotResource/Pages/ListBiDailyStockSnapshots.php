@@ -6,6 +6,8 @@ use App\Filament\Bi\Resources\BiDailyStockSnapshotResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
+use Filament\Pages\Actions\Action;
+
 class ListBiDailyStockSnapshots extends ListRecords
 {
     protected static string $resource = BiDailyStockSnapshotResource::class;
@@ -17,6 +19,18 @@ class ListBiDailyStockSnapshots extends ListRecords
     {
 
         return $record->snapshot_date . '|' . $record->product_sku;
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('syncStock')
+                ->label('Actualizar Stock')
+                ->icon('heroicon-o-document-magnifying-glass')
+                ->url(config('app.url') . '/sync-stock')
+                ->openUrlInNewTab()
+                ->requiresConfirmation(),
+        ];
     }
 }
 
